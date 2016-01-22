@@ -7,7 +7,6 @@ var mongoose = require('mongoose'),
   In this file, you should use Mongoose queries in order to retrieve/add/remove/update listings.
   On an error you should send a 404 status code, as well as the error message. 
   On success (aka no error), you should send the listing(s) as JSON in the response.
-
   HINT: if you are struggling with implementing these functions, refer back to this tutorial 
   from assignment 3 https://scotch.io/tutorials/using-mongoosejs-in-node-js-and-mongodb-applications
  */
@@ -46,10 +45,34 @@ exports.read = function(req, res) {
 /* Update a listing */
 exports.update = function(req, res) {
   var listing = req.listing;
+  Listing.find({code: req.body.code}, function(err, listing) {
+	  if (err) throw err;
+			
+	  /* Replace the article's properties with the new properties found in req.body */
+	  listing.code = req.body.code;
+	  listing.name = req.body.name;
+	  
+	  /* save the coordinates (located in req.results if there is an address property) */
+	  if(req.results) {
+	    listing.coordinates = {
+	      latitude: req.results.lat, 
+	      longitude: req.results.lng
+	    };
+	  }
+	  
+	  /* Save the article */
+	  listing.save(function(err) {
+	    if(err) {
+	      console.log(err);
+	      res.status(400).send(err);
+	    } else {
+	      res.json(listing);
+	      console.log('Listing updated!');
+	    }
+	  });
+	  
+	});
 
-  /* Replace the article's properties with the new properties found in req.body */
-  /* save the coordinates (located in req.results if there is an address property) */
-  /* Save the article */
 };
 
 /* Delete a listing */
@@ -57,16 +80,26 @@ exports.delete = function(req, res) {
   var listing = req.listing;
 
   /* Remove the article */
+  Listing.findOneAndRemove({ code: req.body.code }, function(err) {
+  if (err) throw err;
+
+  // we have deleted the listing
+  console.log('Listing deleted!');
+	});
 };
 
 /* Retreive all the directory listings, sorted alphabetically by listing code */
 exports.list = function(req, res) {
   /* Your code here */
+  Listing.find({}, null, {sort: {code: 1}}, function(err, listings)){
+  		if (err) throw err;
+  		
+  		console.log(listings);
+  };
 };
 
 /* 
   Middleware: find a listing by its ID, then pass it to the next request handler. 
-
   HINT: Find the listing using a mongoose query, 
         bind it to the request object as the property 'listing', 
         then finally call next
