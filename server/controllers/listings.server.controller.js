@@ -81,21 +81,19 @@ exports.delete = function(req, res) {
 
   /* Remove the article */
   Listing.findOneAndRemove({ code: req.body.code }, function(err) {
-  if (err) throw err;
-
-  // we have deleted the listing
-  console.log('Listing deleted!');
-	});
+    if (err) throw err;
+    // we have deleted the listing
+    console.log('Listing deleted!');
+  });
 };
 
 /* Retreive all the directory listings, sorted alphabetically by listing code */
 exports.list = function(req, res) {
   /* Your code here */
-  Listing.find({}, null, {sort: {code: 1}}, function(err, listings)){
+  Listing.find({}, null, {sort: {code: 1}}, function(err, listings){
   		if (err) throw err;
-  		
   		console.log(listings);
-  };
+  });
 };
 
 /* 
