@@ -1,4 +1,3 @@
-
 /* Dependencies */
 var mongoose = require('mongoose'), 
     Listing = require('../models/listings.server.model.js');
@@ -40,60 +39,65 @@ exports.create = function(req, res) {
 exports.read = function(req, res) {
   /* send back the listing as json from the request */
   res.json(req.listing);
+
 };
 
 /* Update a listing */
 exports.update = function(req, res) {
   var listing = req.listing;
-  Listing.find({code: req.body.code}, function(err, listing) {
-	  if (err) throw err;
-			
-	  /* Replace the article's properties with the new properties found in req.body */
-	  listing.code = req.body.code;
-	  listing.name = req.body.name;
-	  
-	  /* save the coordinates (located in req.results if there is an address property) */
-	  if(req.results) {
-	    listing.coordinates = {
-	      latitude: req.results.lat, 
-	      longitude: req.results.lng
-	    };
-	  }
-	  
-	  /* Save the article */
-	  listing.save(function(err) {
-	    if(err) {
-	      console.log(err);
-	      res.status(400).send(err);
-	    } else {
-	      res.json(listing);
-	      console.log('Listing updated!');
-	    }
-	  });
-	  
-	});
+  
+  // Listing.find({code: req.body.code}, function(err, listing) {
+    // if (err) throw err;
+      
+    /* Replace the article's properties with the new properties found in req.body */
+    listing.code = req.body.code;
+    listing.name = req.body.name;
+    
+    /* save the coordinates (located in req.results if there is an address property) */
+    if(req.results) {
+      listing.coordinates = {
+        latitude: req.results.lat, 
+        longitude: req.results.lng
+      };
+    }
+    // res.json(req.listing);
+    
+    /* Save the article */
+    listing.save(function(err) {
+      if(err) {
+        console.log(err);
+        res.status(400).send(err);
+      } else {
+        res.json(req.listing);
+        console.log('Listing updated!');
+      }
+    });
+    
+  // });
 
 };
 
 /* Delete a listing */
 exports.delete = function(req, res) {
   var listing = req.listing;
-
-  /* Remove the article */
-  Listing.findOneAndRemove({ code: req.body.code }, function(err) {
+  listing.remove(function(err) {
     if (err) throw err;
-    // we have deleted the listing
-    console.log('Listing deleted!');
+     res.json(req.listing);
+    // console.log('User successfully deleted!');
   });
+
 };
 
 /* Retreive all the directory listings, sorted alphabetically by listing code */
 exports.list = function(req, res) {
   /* Your code here */
+
   Listing.find({}, null, {sort: {code: 1}}, function(err, listings){
-  		if (err) throw err;
-  		console.log(listings);
+      if (err) throw err;
+      // console.log(listings);
+      res.json(listings);
   });
+
 };
 
 /* 
